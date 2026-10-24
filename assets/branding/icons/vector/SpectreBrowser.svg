@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1{fill:#999999}
+      .cls-2{fill:#1a1a1a}
+      .cls-3{fill:#4d4d4d}
+      .cls-4{fill:#ffffff}
+      .cls-5{fill:#333333}
+    </style>
+  </defs>
+  <title>chromium.svg</title>
+  <g id="Layer_1" data-name="Layer 1">
+    <path d="M256 256 L366.9 320 L256 512 C397.4 512 512 397.4 512 256 C512 209.4 499.5 165.7 477.7 128 L256 128 Z" class="cls-1"/>
+    <path d="M256 0 C161.2 0 78.6 51.5 34.3 128 L145.1 320 L256 256 L256 128 L477.7 128 C433.4 51.5 350.7 0 256 0" class="cls-2"/>
+    <path d="M0 256 C0 397.4 114.6 512 256 512 L366.9 320 L256 256 L145.1 320 L34.3 128 C12.5 165.7 0 209.4 0 256" class="cls-3"/>
+    <path d="M384 256 C384 326.7 326.7 384 256 384 C185.3 384 128 326.7 128 256 C128 185.3 185.3 128 256 128 C326.7 128 384 185.3 384 256" class="cls-4"/>
+    <path d="M360 256 C360 313.4 313.4 360 256 360 C198.6 360 152 313.4 152 256 C152 198.6 198.6 152 256 152 C313.4 152 360 198.6 360 256" class="cls-5"/>
+  </g>
+</svg>

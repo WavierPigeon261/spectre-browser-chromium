@@ -86,8 +86,20 @@ def main():
     files_generator = filescfg.filescfg_generator(
         Path('build/src/chrome/tools/build/win/FILES.cfg'),
         build_outputs, args.cpu_arch, excluded_files)
+    bundled_extensions = [
+        Path('extensions/external_extensions.json'),
+        Path('extensions/fkgkibajhfbepljeaefdnfnegdcjomkh.json'),
+        Path('extensions/Spectre-uBlock-Origin.crx'),
+        Path('extensions/required/ocaahdebbfolfmndjeplogmgcagdmblk.json'),
+        Path('extensions/required/Spectre-Chromium-Web-Store.crx'),
+    ]
+    for extension_file in bundled_extensions:
+        if not (build_outputs / extension_file).is_file():
+            raise FileNotFoundError(build_outputs / extension_file)
+    package_files = list(files_generator)
+    package_files.extend(bundled_extensions)
     filescfg.create_archive(
-        files_generator, tuple(), build_outputs, output, timestamp)
+        package_files, tuple(), build_outputs, output, timestamp)
 
 if __name__ == '__main__':
     main()

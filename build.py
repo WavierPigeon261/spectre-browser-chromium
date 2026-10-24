@@ -110,6 +110,65 @@ def _make_tmp_paths():
         tmp_path.mkdir()
 
 
+def _apply_custom_branding(source_tree: Path):
+    """Copies custom branding assets and rebrands the app in the source tree."""
+    branding_root = _ROOT_DIR / 'assets' / 'branding'
+
+    icon_src = branding_root / 'icons' / 'windows' / 'SpectreBrowser.ico'
+    icon_dst = source_tree / 'chrome' / 'app' / 'theme' / 'chromium' / 'win' / 'chrome_launcher.ico'
+    if icon_src.exists():
+        icon_dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(icon_src, icon_dst)
+
+    font_src = branding_root / 'fonts' / 'Poppins-Bold.ttf'
+    font_dst = (
+        source_tree / 'chrome' / 'browser' / 'resources' / 'new_tab_page' /
+        'Poppins-Bold.ttf')
+    font_license_src = branding_root / 'fonts' / 'OFL.txt'
+    font_license_dst = font_dst.with_name('Poppins-OFL.txt')
+    if not font_src.is_file():
+        raise FileNotFoundError(font_src)
+    if not font_license_src.is_file():
+        raise FileNotFoundError(font_license_src)
+    font_dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(font_src, font_dst)
+    shutil.copy2(font_license_src, font_license_dst)
+
+    generated_resources = source_tree / 'chrome' / 'app' / 'generated_resources.grd'
+    if generated_resources.exists():
+        text = generated_resources.read_text(encoding=ENCODING)
+        updated = text.replace('Chromium', 'Spectre Browser')
+        if updated != text:
+            generated_resources.write_text(updated, encoding=ENCODING)
+
+
+def _stage_bundled_extensions(source_tree: Path, downloads_cache: Path,
+                              disable_ssl_verification: bool):
+    """Downloads pinned extension releases and stages them for Chromium packaging."""
+    extension_downloads = downloads.DownloadInfo(
+        [_ROOT_DIR / 'assets' / 'extensions' / 'downloads.ini'])
+    downloads.retrieve_downloads(
+        extension_downloads, downloads_cache, None, True, disable_ssl_verification)
+    try:
+        downloads.check_downloads(extension_downloads, downloads_cache, None)
+    except downloads.HashMismatchError as exc:
+        get_logger().error('Extension file checksum does not match: %s', exc)
+        sys.exit(1)
+
+    extension_dir = (
+        source_tree / 'chrome' / 'browser' / 'extensions' / 'default_extensions')
+    extension_dir.mkdir(parents=True, exist_ok=True)
+    extension_files = (
+        ('spectre-ublock-origin', 'Spectre-uBlock-Origin.crx'),
+        ('spectre-chromium-web-store', 'Spectre-Chromium-Web-Store.crx'),
+    )
+    for section, filename in extension_files:
+        download_path = downloads_cache / extension_downloads[section].download_filename
+        if not download_path.is_file():
+            raise FileNotFoundError(download_path)
+        shutil.copy2(download_path, extension_dir / filename)
+
+
 def main():
     """CLI Entrypoint"""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -219,6 +278,9 @@ def main():
         get_logger().info('Unpacking downloads...')
         downloads.unpack_downloads(download_info_win, downloads_cache, None, source_tree, extractors)
 
+        _stage_bundled_extensions(
+            source_tree, downloads_cache, args.disable_ssl_verification)
+
         # Apply patches
         # First, ungoogled-chromium-patches
         patches.apply_patches(
@@ -241,6 +303,8 @@ def main():
             source_tree,
             None
         )
+
+        _apply_custom_branding(source_tree)
 
     # Check if rust-toolchain folder has been populated
     HOST_CPU_IS_64BIT = sys.maxsize > 2**32

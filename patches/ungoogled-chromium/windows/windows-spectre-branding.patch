@@ -1,0 +1,26 @@
+--- a/chrome/app/theme/chromium/BRANDING
++++ b/chrome/app/theme/chromium/BRANDING
+ @@ -3,4 +3,4 @@
+ -PRODUCT_FULLNAME=Chromium
+ -PRODUCT_SHORTNAME=Chromium
+ -PRODUCT_INSTALLER_FULLNAME=Chromium Installer
+ -PRODUCT_INSTALLER_SHORTNAME=Chromium Installer
+ +PRODUCT_FULLNAME=Spectre Browser
+ +PRODUCT_SHORTNAME=Spectre Browser
+ +PRODUCT_INSTALLER_FULLNAME=Spectre Browser Installer
+ +PRODUCT_INSTALLER_SHORTNAME=Spectre Browser Installer
+--- a/chrome/app/chromium_strings.grd
++++ b/chrome/app/chromium_strings.grd
+@@ -294,10 +294,10 @@
+         </then>
+         <else>
+           <message name="IDS_PRODUCT_NAME" desc="The Chrome application name" translateable="false">
+-            Chromium
++            Spectre Browser
+           </message>
+           <message name="IDS_SHORT_PRODUCT_NAME" desc="The Chrome application short name." translateable="false">
+-            Chromium
++            Spectre Browser
+           </message>
+         </else>
+       </if>

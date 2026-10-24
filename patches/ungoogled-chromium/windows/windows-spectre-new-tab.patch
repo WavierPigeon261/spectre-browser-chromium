@@ -1,0 +1,74 @@
+--- a/chrome/browser/resources/new_tab_page/BUILD.gn
++++ b/chrome/browser/resources/new_tab_page/BUILD.gn
+@@ -22,4 +22,6 @@ build_webui("build") {
+   static_files = [
+     "new_tab_page.html",
++    "Poppins-Bold.ttf",
++    "Poppins-OFL.txt",
+     "shared_vars.css",
+   ]
+--- a/chrome/browser/resources/new_tab_page/logo.html
++++ b/chrome/browser/resources/new_tab_page/logo.html
+@@ -1,5 +1,5 @@
+ ${this.showLogo_ ? html`
+-  <div id="logo"></div>
++  <div id="logo" role="img" aria-label="Spectre">Spectre</div>
+ ` : ''}
+ ${this.showDoodle_ ? html`
+   <div id="doodle">
+--- a/chrome/browser/resources/new_tab_page/logo.css
++++ b/chrome/browser/resources/new_tab_page/logo.css
+@@ -8,6 +8,14 @@
+  * #scheme=relative
+  * #include=cr-hidden-style-lit
+  * #css_wrapper_metadata_end */
+ 
++@font-face {
++  font-family: 'Spectre Poppins';
++  font-style: normal;
++  font-weight: 700;
++  font-display: swap;
++  src: url(./Poppins-Bold.ttf) format('truetype');
++}
++
+ :host {
+   --ntp-logo-height: 168px;
+@@ -33,25 +41,17 @@
+ #logo {
+-  forced-color-adjust: none;
+-  height: 92px;
+-  width: 272px;
+-}
+-
+-:host([use-google-logo26_]) #logo {
+-  height: 82px;
+-  width: 270px;
+-}
+-
+-:host([single-colored]) #logo {
+-  -webkit-mask-image: url(./icons/google_logo.svg);
+-  -webkit-mask-repeat: no-repeat;
+-  -webkit-mask-size: 100%;
+-  background-color: var(--ntp-logo-color);
+-}
+-
+-:host(:not([single-colored])) #logo {
+-  background-image: url(./icons/google_logo.svg);
+-  background-repeat: no-repeat;
+-  background-size: 100%;
++  align-items: center;
++  color: var(--color-new-tab-page-primary-foreground,
++      var(--color-new-tab-page-secondary-foreground, #000));
++  display: flex;
++  forced-color-adjust: auto;
++  font-family: 'Spectre Poppins', sans-serif;
++  font-size: clamp(64px, 9vw, 112px);
++  font-weight: 700;
++  height: auto;
++  justify-content: center;
++  line-height: 1.1;
++  width: auto;
++  white-space: nowrap;
+ }
+ 
+ :host([doodle-boxed_]:not([show-tight-doodle-boxing_])) #imageDoodle {
