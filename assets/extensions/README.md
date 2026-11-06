@@ -28,4 +28,8 @@ The Chromium Web Store helper uses the existing ungoogled-chromium
 `extension-mime-request-handling` patch. Spectre Browser allows its HTTPS CRX
 downloads only when initiated by that helper or a Chrome Web Store page; users
 still confirm each installation in Chromium's normal extension install prompt.
-No general Google services or enterprise extension policies are enabled.
+The Windows patch also restores Chromium's interactive Web Store download and
+CRX-install steps, which the ungoogled default-extensions patch disables.
+Automatic extension update checks remain disabled; bundled extensions update
+with Spectre Browser releases. No general Google services or enterprise
+extension policies are enabled.
