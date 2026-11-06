@@ -9,12 +9,9 @@
    ]
 --- a/chrome/browser/resources/new_tab_page/logo.html
 +++ b/chrome/browser/resources/new_tab_page/logo.html
-@@ -1,5 +1,5 @@
- ${this.showLogo_ ? html`
+@@ -2 +2 @@
 -  <div id="logo"></div>
 +  <div id="logo" role="img" aria-label="Spectre">Spectre</div>
- ` : ''}
- ${this.showDoodle_ ? html`
    <div id="doodle">
 --- a/chrome/browser/resources/new_tab_page/logo.css
 +++ b/chrome/browser/resources/new_tab_page/logo.css

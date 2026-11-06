@@ -1,0 +1,123 @@
+--- a/chrome/browser/extensions/default_extensions/BUILD.gn
++++ b/chrome/browser/extensions/default_extensions/BUILD.gn
+@@ -4,8 +4,32 @@
+ if (is_win) {
+-  copy("default_extensions") {
++  copy("external_extensions_manifest") {
+     sources = [ "external_extensions.json" ]
+     outputs = [ "$root_out_dir/extensions/{{source_file_part}}" ]
+   }
++
++  copy("spectre_ublock_origin") {
++    sources = [
++      "fkgkibajhfbepljeaefdnfnegdcjomkh.json",
++      "Spectre-uBlock-Origin.crx",
++    ]
++    outputs = [ "$root_out_dir/extensions/{{source_file_part}}" ]
++  }
++
++  copy("spectre_chromium_web_store") {
++    sources = [
++      "ocaahdebbfolfmndjeplogmgcagdmblk.json",
++      "Spectre-Chromium-Web-Store.crx",
++    ]
++    outputs = [ "$root_out_dir/extensions/required/{{source_file_part}}" ]
++  }
++
++  group("default_extensions") {
++    deps = [
++      ":external_extensions_manifest",
++      ":spectre_chromium_web_store",
++      ":spectre_ublock_origin",
++    ]
++  }
+ } else {
+   # No-op on non-Windows.
+   group("default_extensions") {
+--- a/chrome/installer/mini_installer/chrome.release
++++ b/chrome/installer/mini_installer/chrome.release
+@@ -44 +44,2 @@
+ Extensions\*.*: %(VersionDir)s\Extensions\
++Extensions\required\*.*: %(VersionDir)s\Extensions\required\
+--- /dev/null
++++ b/chrome/browser/extensions/default_extensions/fkgkibajhfbepljeaefdnfnegdcjomkh.json
+@@ -0,0 +1,4 @@
++{
++  "external_crx": "Spectre-uBlock-Origin.crx",
++  "external_version": "1.75.0"
++}
+--- /dev/null
++++ b/chrome/browser/extensions/default_extensions/ocaahdebbfolfmndjeplogmgcagdmblk.json
+@@ -0,0 +1,4 @@
++{
++  "external_crx": "Spectre-Chromium-Web-Store.crx",
++  "external_version": "1.5.5.4"
++}
+--- a/chrome/browser/extensions/external_provider_impl.cc
++++ b/chrome/browser/extensions/external_provider_impl.cc
+@@ -890,4 +890,18 @@
+ #if BUILDFLAG(IS_WIN)
++    provider_list->push_back(std::make_unique<ExternalProviderImpl>(
++        service,
++        base::MakeRefCounted<ExternalPrefLoader>(
++            chrome::DIR_EXTERNAL_EXTENSIONS, ExternalPrefLoader::NONE,
++            nullptr),
++        profile, ManifestLocation::kExternalPref,
++        ManifestLocation::kExternalPrefDownload, Extension::NO_FLAGS));
++    provider_list->push_back(std::make_unique<ExternalProviderImpl>(
++        service,
++        base::MakeRefCounted<ExternalPrefLoader>(
++            chrome::DIR_SPECTRE_REQUIRED_EXTENSIONS, ExternalPrefLoader::NONE,
++            nullptr),
++        profile, ManifestLocation::kExternalComponent,
++        ManifestLocation::kExternalPrefDownload, Extension::NO_FLAGS));
+     auto registry_provider = std::make_unique<ExternalProviderImpl>(
+         service, new ExternalRegistryLoader, profile,
+         ManifestLocation::kExternalRegistry,
+--- a/chrome/common/chrome_paths.h
++++ b/chrome/common/chrome_paths.h
+@@ -71,4 +71,7 @@
+                                        // describe extensions which are to be
+                                        // installed when chrome is run.
+ #endif
++#if BUILDFLAG(IS_WIN)
++  DIR_SPECTRE_REQUIRED_EXTENSIONS,  // Bundled extension directory.
++#endif
+   DIR_EXTERNAL_EXTENSIONS,  // Directory where installer places .crx files.
+--- a/chrome/common/chrome_paths.cc
++++ b/chrome/common/chrome_paths.cc
+@@ -431 +431,9 @@
++#if BUILDFLAG(IS_WIN)
++    case chrome::DIR_SPECTRE_REQUIRED_EXTENSIONS:
++      if (!base::PathService::Get(chrome::DIR_EXTERNAL_EXTENSIONS, &cur)) {
++        return false;
++      }
++      cur = cur.Append(FILE_PATH_LITERAL("required"));
++      break;
++#endif
+     case chrome::DIR_EXTERNAL_EXTENSIONS:
+--- a/chrome/browser/extensions/extension_management.cc
++++ b/chrome/browser/extensions/extension_management.cc
+@@ -373,6 +373,22 @@
+ bool ExtensionManagement::IsOffstoreInstallAllowed(
+     const GURL& url,
+     const GURL& referrer_url) const {
++  const bool is_web_store_initiated =
++      (referrer_url.SchemeIs("https") &&
++       referrer_url.host_piece() == "chromewebstore.google.com") ||
++      (referrer_url.SchemeIs("chrome-extension") &&
++       referrer_url.host_piece() ==
++           "ocaahdebbfolfmndjeplogmgcagdmblk");
++  const bool is_web_store_crx_download =
++      url.SchemeIs("https") &&
++      ((url.host_piece() == "clients2.google.com" &&
++        url.path_piece() == "/service/update2/crx") ||
++       (url.host_piece() == "clients2.googleusercontent.com" &&
++        url.path_piece().starts_with("/crx/blobs/")));
++  if (is_web_store_initiated && is_web_store_crx_download) {
++    return true;
++  }
++
+   const base::CommandLine& command_line =
+       *base::CommandLine::ForCurrentProcess();
+ End Patch
