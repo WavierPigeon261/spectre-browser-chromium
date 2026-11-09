@@ -104,16 +104,16 @@
      const GURL& referrer_url) const {
 +  const bool is_web_store_initiated =
 +      (referrer_url.SchemeIs("https") &&
-+       referrer_url.host_piece() == "chromewebstore.google.com") ||
++       referrer_url.host() == "chromewebstore.google.com") ||
 +      (referrer_url.SchemeIs("chrome-extension") &&
-+       referrer_url.host_piece() ==
++       referrer_url.host() ==
 +           "ocaahdebbfolfmndjeplogmgcagdmblk");
 +  const bool is_web_store_crx_download =
 +      url.SchemeIs("https") &&
-+      ((url.host_piece() == "clients2.google.com" &&
-+        url.path_piece() == "/service/update2/crx") ||
-+       (url.host_piece() == "clients2.googleusercontent.com" &&
-+        url.path_piece().starts_with("/crx/blobs/")));
++      ((url.host() == "clients2.google.com" &&
++        url.path() == "/service/update2/crx") ||
++       (url.host() == "clients2.googleusercontent.com" &&
++        url.path().starts_with("/crx/blobs/")));
 +  if (is_web_store_initiated && is_web_store_crx_download) {
 +    return true;
 +  }
